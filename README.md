@@ -1,4 +1,4 @@
 # Redmine
 
-- rename prod.env.example > prod.env
+- rename `prod.env.example` > `.env`
 - start `docker-compose up -d`

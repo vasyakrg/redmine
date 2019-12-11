@@ -22,7 +22,7 @@ services:
     tmpfs:
       - /tmp
     networks:
-      - ${SERVICE_NETWORK}
+      - service
 
   postgresql:
     image: ${DOCKER_IMAGE_PGSQL}
@@ -35,14 +35,14 @@ services:
     volumes:
     -  ${SERVICE_DATA}/${SERVICE_NAME}/postgresql:/var/lib/postgresql
     networks:
-    - ${SERVICE_NETWORK}
+    - service
 
   memcached:
     image: ${DOCKER_IMAGE_MEMCACHED}
     container_name: ${SERVICE_NAME}_${CONTAINER_NAME_MEMCACHED}
     restart: always
     networks:
-    - ${SERVICE_NETWORK}
+    - service
 
   redmine:
     image: ${DOCKER_IMAGE_REDMINE}
@@ -112,4 +112,4 @@ services:
 
 networks:
     service:
-        name: ${SERVICE_NAME}
+        name: ${SERVICE_NETWORK}
