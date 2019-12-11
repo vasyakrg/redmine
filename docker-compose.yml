@@ -5,7 +5,7 @@ services:
     image: ${DOCKER_IMAGE_BACKUP}
     restart: always
     container_name: ${SERVICE_NAME}_${CONTAINER_NAME_BACKUP}
-    command: redmine backup --html ${BACKUP_DIR} --storage B2://vasyakrg-backup/ --container ${SERVICE_NAME}_${CONTAINER_NAME_REDMINE}
+    command: redmine backup --html ${BACKUP_DIR} --storage B2://vasyakrg-backup/redmine --container ${SERVICE_NAME}_${CONTAINER_NAME_REDMINE}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${SERVICE_DATA}/${SERVICE_NAME}/redmine:${BACKUP_DIR}
