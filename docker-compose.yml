@@ -99,10 +99,8 @@ services:
     - VIRTUAL_HOST=${REDMINE_HOST}
     - LETSENCRYPT_HOST=${REDMINE_HOST}
     - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
-    expose:
-    - 10080
     ports:
-    - "${IP_ADDRESS}:${EXTERNAL_PORT}:80"
+    - "${IP_ADDRESS}:${EXTERNAL_PORT}:10080"
     volumes:
 #    -  ./ckeditor.yml:/home/redmine/config/ckeditor.yml
     -  ${SERVICE_DATA}/${SERVICE_NAME}/redmine:/home/redmine/data
