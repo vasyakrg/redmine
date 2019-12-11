@@ -1,0 +1,115 @@
+﻿version: '3.5'
+
+services:
+  backup:
+    image: ${DOCKER_IMAGE_BACKUP}
+    restart: always
+    container_name: ${SERVICE_NAME}_${CONTAINER_NAME_BACKUP}
+    command: redmine backup --html ${BACKUP_DIR} --storage B2://infra-services/redmine --container ${SERVICE_NAME}_${CONTAINER_NAME_REDMINE}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${SERVICE_DATA}/${SERVICE_NAME}/redmine:${BACKUP_DIR}
+    environment:
+      - BACKUP_SCHEDULE=${BACKUP_SCHEDULE}
+      - BACKUP_DIR=${BACKUP_DIR}
+      - DB_TYPE=postgresql
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_HOST=postgresql
+      - DB_NAME=${DB_NAME}
+      - SERVICE_NAME=${SERVICE_NAME}
+      - CONTAINER_NAME_REDMINE=${CONTAINER_NAME_REDMINE}
+    tmpfs:
+      - /tmp
+    networks:
+      - ${SERVICE_NETWORK}
+
+  postgresql:
+    image: ${DOCKER_IMAGE_PGSQL}
+    container_name: ${SERVICE_NAME}_${CONTAINER_NAME_PGSQL}
+    restart: always
+    environment:
+    - DB_USER=${DB_USER}
+    - DB_PASS=${DB_PASS}
+    - DB_NAME=${DB_NAME}
+    volumes:
+    -  ${SERVICE_DATA}/${SERVICE_NAME}/postgresql:/var/lib/postgresql
+    networks:
+    - ${SERVICE_NETWORK}
+
+  memcached:
+    image: ${DOCKER_IMAGE_MEMCACHED}
+    container_name: ${SERVICE_NAME}_${CONTAINER_NAME_MEMCACHED}
+    restart: always
+    networks:
+    - ${SERVICE_NETWORK}
+
+  redmine:
+    image: ${DOCKER_IMAGE_REDMINE}
+    container_name: ${SERVICE_NAME}_${CONTAINER_NAME_REDMINE}
+    depends_on:
+    - memcached
+    - postgresql
+    restart: always
+    environment:
+    - TZ=Asia/Almaty
+
+    - DB_ADAPTER=postgresql
+#    - DB_HOST=postgresql
+    - DB_HOST=${SERVICE_NAME}_${CONTAINER_NAME_PGSQL}
+    - DB_PORT=5432
+    - DB_USER=${DB_USER}
+    - DB_PASS=${DB_PASS}
+    - DB_NAME=${DB_NAME}
+
+    - REDMINE_PORT=10080
+    - REDMINE_HTTPS=true
+    - REDMINE_RELATIVE_URL_ROOT=
+    - REDMINE_SECRET_TOKEN=TouiykcMtXDhdfgjerlnYvH0uCAU3BJXDzH
+
+    - REDMINE_SUDO_MODE_ENABLED=false
+    - REDMINE_SUDO_MODE_TIMEOUT=15
+
+    - REDMINE_CONCURRENT_UPLOADS=5
+
+    - REDMINE_BACKUP_SCHEDULE=
+    - REDMINE_BACKUP_EXPIRY=
+    - REDMINE_BACKUP_TIME=
+
+    - MEMCACHE_HOST=memcached
+
+    - SMTP_ENABLED=true
+    - SMTP_METHOD=async_smtp
+    - SMTP_DOMAIN=amegaserver.com
+    - SMTP_HOST=smtp.amegaserver.com
+    - SMTP_PORT=25
+    - SMTP_USER=redmine@amegaserver.com
+    - SMTP_PASS=1Z9d6E5s
+    - SMTP_STARTTLS=true
+    - SMTP_AUTHENTICATION=:login
+
+    - IMAP_ENABLED=false
+    - IMAP_HOST=imap.gmail.com
+    - IMAP_PORT=993
+    - IMAP_USER=mailer@example.com
+    - IMAP_PASS=password
+    - IMAP_SSL=true
+    - IMAP_INTERVAL=30
+
+    - VIRTUAL_HOST=${REDMINE_HOST}
+    - LETSENCRYPT_HOST=${REDMINE_HOST}
+    - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
+    expose:
+    - 10080
+#    ports:
+   - "10080:10080"
+    volumes:
+#    -  ./ckeditor.yml:/home/redmine/config/ckeditor.yml
+    -  ${SERVICE_DATA}/${SERVICE_NAME}/redmine:/home/redmine/data
+    -  ${SERVICE_DATA}/${SERVICE_NAME}/redmine_emoji:/home/redmine/redmine/public/images/emoji
+    networks:
+    - service
+
+networks:
+    service:
+        name: ${SERVICE_NAME}
