@@ -101,8 +101,8 @@ services:
     - LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}
     expose:
     - 10080
-   ports:
-   - "${IP_ADDRESS}:10080:10080"
+    ports:
+    - "${IP_ADDRESS}:10080:10080"
     volumes:
 #    -  ./ckeditor.yml:/home/redmine/config/ckeditor.yml
     -  ${SERVICE_DATA}/${SERVICE_NAME}/redmine:/home/redmine/data
